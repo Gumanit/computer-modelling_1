@@ -5,13 +5,13 @@ import (
 	"math/rand"
 )
 
-//var distanceMap = [][]int{
-//	{0, 120, 220, 150, 300}, //От города 0 (A)
-//	{120, 0, 100, 180, 250}, //От города 1 (B)
-//	{220, 100, 0, 80, 120},  //От города 2 (C)
-//	{150, 180, 80, 0, 200},  //От города 3 (D)
-//	{300, 250, 120, 200, 0}, //От города 4 (E)
-//}
+var distanceMap = [][]int{
+	{0, 120, 220, 150, 300}, //От города 0 (A)
+	{120, 0, 100, 180, 250}, //От города 1 (B)
+	{220, 100, 0, 80, 120},  //От города 2 (C)
+	{150, 180, 80, 0, 200},  //От города 3 (D)
+	{300, 250, 120, 200, 0}, //От города 4 (E)
+}
 
 //
 //func initCitiesMap() map[string]int {
@@ -43,11 +43,7 @@ func initDec(n int) []int {
 
 // ====== CITY-SWAP АЛГОРИТМ ======
 
-func citySwap(n int, neighborhoodSize int) [][]int {
-
-	if n <= 2 || neighborhoodSize <= 0 {
-		return [][]int{}
-	}
+func citySwap(n int, distanceMap [][]int, size int) [][]int {
 
 	initialDecision := initDec(n)
 
@@ -55,13 +51,13 @@ func citySwap(n int, neighborhoodSize int) [][]int {
 
 	maxPossible := (n - 1) * (n - 2) / 2
 
-	if neighborhoodSize > maxPossible {
-		neighborhoodSize = maxPossible
+	if size > maxPossible {
+		size = maxPossible
 	}
 
 	generatedPairs := make(map[[2]int]bool)
 
-	for len(neighbors) < neighborhoodSize && len(generatedPairs) < maxPossible {
+	for len(generatedPairs) < maxPossible {
 		i := rand.Intn(n-1) + 1
 		j := rand.Intn(n-1) + 1
 
@@ -89,29 +85,26 @@ func citySwap(n int, neighborhoodSize int) [][]int {
 		neighbors = append(neighbors, newPath)
 	}
 
-	return neighbors
+	return neighbors[:size]
 }
 
 // ====== 2-OPT АЛГОРИТМ ======
 
-func twoOpt(n int, neighborhoodSize int) [][]int {
+func twoOpt(n int, distanceMap [][]int, size int) [][]int {
 
 	initialDecision := initDec(n)
-	if n < 4 {
-		return [][]int{}
-	}
 
 	var neighbors [][]int
 
 	maxPossible := n * (n - 3) / 2
 
-	if neighborhoodSize > maxPossible {
-		neighborhoodSize = maxPossible
+	if size > maxPossible {
+		size = maxPossible
 	}
 
 	generatedPairs := make(map[[2]int]bool)
 
-	for len(neighbors) < neighborhoodSize && len(generatedPairs) < maxPossible {
+	for len(generatedPairs) < maxPossible {
 		i := rand.Intn(n - 2)
 
 		j := i + 2 + rand.Intn(n-i-2)
@@ -141,10 +134,10 @@ func twoOpt(n int, neighborhoodSize int) [][]int {
 		neighbors = append(neighbors, newPath)
 	}
 
-	return neighbors
+	return neighbors[:size]
 }
 
 func main() {
-	fmt.Println("City-swap:", citySwap(5, 30))
-	fmt.Println("TwoOpt:", twoOpt(6, 30))
+	fmt.Println("City-swap:", citySwap(5, distanceMap, 6))
+	fmt.Println("TwoOpt:", twoOpt(5, distanceMap, 5))
 }
