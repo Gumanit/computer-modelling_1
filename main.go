@@ -5,13 +5,13 @@ import (
 	"math/rand"
 )
 
-var distanceMap = [][]int{
-	{0, 120, 220, 150, 300}, //От города 0 (A)
-	{120, 0, 100, 180, 250}, //От города 1 (B)
-	{220, 100, 0, 80, 120},  //От города 2 (C)
-	{150, 180, 80, 0, 200},  //От города 3 (D)
-	{300, 250, 120, 200, 0}, //От города 4 (E)
-}
+//var distanceMap = [][]int{
+//	{0, 120, 220, 150, 300}, //От города 0 (A)
+//	{120, 0, 100, 180, 250}, //От города 1 (B)
+//	{220, 100, 0, 80, 120},  //От города 2 (C)
+//	{150, 180, 80, 0, 200},  //От города 3 (D)
+//	{300, 250, 120, 200, 0}, //От города 4 (E)
+//}
 
 //
 //func initCitiesMap() map[string]int {
@@ -33,7 +33,7 @@ var distanceMap = [][]int{
 //	return
 //}
 
-func initDec(n int, distanceMap [][]int) []int {
+func initDec(n int) []int {
 	var decision []int
 	for i := 0; i < n; i++ {
 		decision = append(decision, i)
@@ -43,13 +43,13 @@ func initDec(n int, distanceMap [][]int) []int {
 
 // ====== CITY-SWAP АЛГОРИТМ ======
 
-func citySwap(n int, distanceMap [][]int, neighborhoodSize int) [][]int {
+func citySwap(n int, neighborhoodSize int) [][]int {
 
 	if n <= 2 || neighborhoodSize <= 0 {
 		return [][]int{}
 	}
 
-	initialDecision := initDec(n, distanceMap)
+	initialDecision := initDec(n)
 
 	var neighbors [][]int
 
@@ -94,9 +94,9 @@ func citySwap(n int, distanceMap [][]int, neighborhoodSize int) [][]int {
 
 // ====== 2-OPT АЛГОРИТМ ======
 
-func twoOpt(n int, distanceMap [][]int, neighborhoodSize int) [][]int {
+func twoOpt(n int, neighborhoodSize int) [][]int {
 
-	initialDecision := initDec(n, distanceMap)
+	initialDecision := initDec(n)
 	if n < 4 {
 		return [][]int{}
 	}
@@ -145,6 +145,6 @@ func twoOpt(n int, distanceMap [][]int, neighborhoodSize int) [][]int {
 }
 
 func main() {
-	fmt.Println("City-swap:", citySwap(5, distanceMap, 30))
-	fmt.Println("TwoOpt:", twoOpt(6, distanceMap, 30))
+	fmt.Println("City-swap:", citySwap(5, 30))
+	fmt.Println("TwoOpt:", twoOpt(6, 30))
 }
