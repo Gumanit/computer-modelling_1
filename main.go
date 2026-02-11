@@ -5,15 +5,13 @@ import (
 	"math/rand"
 )
 
-//var distanceMap = [][]int{
-//	{0, 120, 220, 150, 300}, //От города 0 (A)
-//	{120, 0, 100, 180, 250}, //От города 1 (B)
-//	{220, 100, 0, 80, 120},  //От города 2 (C)
-//	{150, 180, 80, 0, 200},  //От города 3 (D)
-//	{300, 250, 120, 200, 0}, //От города 4 (E)
-//}
-
-var InitialDecision = "ABCDE"
+var distanceMap = [][]int{
+	{0, 120, 220, 150, 300}, //От города 0 (A)
+	{120, 0, 100, 180, 250}, //От города 1 (B)
+	{220, 100, 0, 80, 120},  //От города 2 (C)
+	{150, 180, 80, 0, 200},  //От города 3 (D)
+	{300, 250, 120, 200, 0}, //От города 4 (E)
+}
 
 //
 //func initCitiesMap() map[string]int {
@@ -35,17 +33,25 @@ var InitialDecision = "ABCDE"
 //	return
 //}
 
+func initDec(n int, distanceMap [][]int) []int {
+	var decision []int
+	for i := 0; i < n; i++ {
+		decision = append(decision, i)
+	}
+	return decision
+}
+
 // ====== CITY-SWAP АЛГОРИТМ ======
 
-func citySwap(path string, neighborhoodSize int) []string {
-	runes := []rune(path)
-	n := len(runes)
+func citySwap(n int, distanceMap [][]int, neighborhoodSize int) [][]int {
 
 	if n <= 2 || neighborhoodSize <= 0 {
-		return []string{}
+		return [][]int{}
 	}
 
-	var neighbors []string
+	initialDecision := initDec(n, distanceMap)
+
+	var neighbors [][]int
 
 	maxPossible := (n - 1) * (n - 2) / 2
 
@@ -75,12 +81,12 @@ func citySwap(path string, neighborhoodSize int) []string {
 
 		generatedPairs[pair] = true
 
-		newPath := make([]rune, n)
-		copy(newPath, runes)
+		newPath := make([]int, n)
+		copy(newPath, initialDecision)
 
 		newPath[i], newPath[j] = newPath[j], newPath[i]
 
-		neighbors = append(neighbors, string(newPath))
+		neighbors = append(neighbors, newPath)
 	}
 
 	return neighbors
@@ -88,15 +94,14 @@ func citySwap(path string, neighborhoodSize int) []string {
 
 // ====== 2-OPT АЛГОРИТМ ======
 
-func twoOpt(path string, neighborhoodSize int) []string {
+func twoOpt(n int, distanceMap [][]int, neighborhoodSize int) [][]int {
 
-	runes := []rune(path)
-	n := len(runes)
+	initialDecision := initDec(n, distanceMap)
 	if n < 4 {
-		return []string{}
+		return [][]int{}
 	}
 
-	var neighbors []string
+	var neighbors [][]int
 
 	maxPossible := n * (n - 3) / 2
 
@@ -121,25 +126,25 @@ func twoOpt(path string, neighborhoodSize int) []string {
 		}
 		generatedPairs[pair] = true
 
-		newPath := make([]rune, n)
+		newPath := make([]int, n)
 
-		copy(newPath[0:i+1], runes[0:i+1])
+		copy(newPath[0:i+1], initialDecision[0:i+1])
 
 		for k := 0; k <= j-i-1; k++ {
-			newPath[i+1+k] = runes[j-k]
+			newPath[i+1+k] = initialDecision[j-k]
 		}
 
 		if j+1 < n {
-			copy(newPath[j+1:], runes[j+1:])
+			copy(newPath[j+1:], initialDecision[j+1:])
 		}
 
-		neighbors = append(neighbors, string(newPath))
+		neighbors = append(neighbors, newPath)
 	}
 
 	return neighbors
 }
 
 func main() {
-	fmt.Println("City-swap:", citySwap(InitialDecision, 30))
-	fmt.Println("TwoOpt:", twoOpt(InitialDecision, 30))
+	fmt.Println("City-swap:", citySwap(5, distanceMap, 30))
+	fmt.Println("TwoOpt:", twoOpt(6, distanceMap, 30))
 }
