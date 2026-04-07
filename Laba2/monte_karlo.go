@@ -6,10 +6,10 @@ import (
 	"math/rand/v2"
 )
 
-var num int = 1000000
+var num int = 10000000
 var x_min, x_max float64 = -1, 1
 
-func main() {
+func monteKarlo(num int) (float64, float64, []float64) {
 	summa := 0.0
 	sumSqLf := 0.0
 	for i := 0; i < num; i++ {
@@ -22,10 +22,14 @@ func main() {
 	disp := (sumSqLf - float64(num)*w*w) / (float64(num) - 1)
 	err := math.Sqrt(disp / float64(num))
 	halfWidth := 1.96 * err
-	integValue := 2.2214415
-	fmt.Printf("Значение оценки w = %.7f\n", w)
-	fmt.Printf("Истинное значение интеграла = %v\n", integValue)
-	fmt.Printf("Погрешность = %.7f\n", w-integValue)
-	fmt.Printf("Доверительный интервал: [%.7f, %.7f]\n", w-halfWidth, w+halfWidth)
-	fmt.Printf("Значение дисперсии S^2 = %.7f\n", disp)
+	I := 2.2214415
+	interval := []float64{w - halfWidth, w + halfWidth}
+	return w, math.Abs(I - w), interval
+}
+
+func main() {
+	w, pogr, interval := monteKarlo(num)
+	fmt.Printf("Оценка w = %v\n", w)
+	fmt.Printf("|I - w| = %.7f\n", pogr)
+	fmt.Printf("Доверительный интервал = [%.8f, %.8f]\n", interval[0], interval[1])
 }
