@@ -65,6 +65,7 @@ func NewInventorySystem(params InventoryParams, seed int64) *InventorySystem {
 // generateInterarrival возвращает промежуток между возникнованием спроса (экспоненциальное).
 func (sys *InventorySystem) generateInterarrival() float64 {
 	u := sys.rng.Float64()
+	// fmt.Printf("Промежутки времени: %v\n", -math.Log(u) / sys.params.Lambda)
 	return -math.Log(u) / sys.params.Lambda
 }
 
@@ -240,25 +241,21 @@ func main() {
 	fmt.Println("--- Одиночный прогон ---")
 	single := NewInventorySystem(baseParams, 42)
 	single.Run()
-	profit, daily := single.Statistics()
-	r, o, h, p := single.GetDetailed()
-	fmt.Printf("Доход:            %.2f\n", r)
+	_, o, h, p := single.GetDetailed()
+
+	fmt.Printf("Общие затраты: %.2f\n", o+h+p)
 	fmt.Printf("Затраты на заказы: %.2f\n", o)
 	fmt.Printf("Затраты на хран.:  %.2f\n", h)
 	fmt.Printf("Штраф за дефицит:  %.2f\n", p)
-	fmt.Printf("Прибыль:           %.2f\n", profit)
-	fmt.Printf("Средняя прибыль/день: %.2f\n", daily)
 	fmt.Println()
 
 	// Множественные прогоны для получения устойчивых оценок
 	fmt.Println("--- Множественные прогоны (100) ---")
 	result := RunMultipleSimulations(baseParams, 100)
-	fmt.Printf("Средний доход:            %.2f\n", result.AvgRevenue)
+	fmt.Printf("Средние общие затраты: %.2f\n", result.AvgOrderCost+result.AvgHoldCost+result.AvgPenalty)
 	fmt.Printf("Средние затраты на заказы: %.2f\n", result.AvgOrderCost)
 	fmt.Printf("Средние затраты на хран.:  %.2f\n", result.AvgHoldCost)
 	fmt.Printf("Средний штраф за дефицит:  %.2f\n", result.AvgPenalty)
-	fmt.Printf("Средняя прибыль:           %.2f\n", result.AvgProfit)
-	fmt.Printf("Средняя прибыль в день:    %.2f\n", result.AvgDailyProfit)
 	fmt.Println()
 
 	// Сравнение различных стратегий (s, S)
@@ -273,25 +270,28 @@ func main() {
 		{250, 400},
 		{10, 500},
 		{100, 400},
+		{5, 15},
+		{10, 20},
+		{15, 30},
 	}
 
 	var bestS, best_s float64
-	var bestProfit float64 = -math.MaxFloat64
+	var bestCost float64 = math.MaxFloat64
 
 	for _, st := range strategies {
 		params := baseParams
 		params.s = st.s
 		params.S = st.S
-		res := RunMultipleSimulations(params, 100)
-		fmt.Printf("s=%.0f S=%.0f -> Прибыль: %.2f (в день: %.2f), Доход: %.2f, Затраты на заказы: %.2f, Затраты на хран.:  %.2f, Штраф за дефицит:  %.2f\n",
-			st.s, st.S, res.AvgProfit, res.AvgDailyProfit, res.AvgRevenue, res.AvgOrderCost, res.AvgHoldCost, res.AvgPenalty)
+		res := RunMultipleSimulations(params, 1)
+		fmt.Printf("s=%.0f S=%.0f -> Общие затраты: %.2f, Затраты на заказы: %.2f, Затраты на хран.:  %.2f, Штраф за дефицит:  %.2f\n",
+			st.s, st.S, res.AvgOrderCost + res.AvgHoldCost + res.AvgPenalty, res.AvgOrderCost, res.AvgHoldCost, res.AvgPenalty)
 
-		if res.AvgProfit > bestProfit {
-			bestProfit = res.AvgProfit
+		if res.AvgOrderCost + res.AvgHoldCost + res.AvgPenalty < bestCost {
+			bestCost = res.AvgOrderCost + res.AvgHoldCost + res.AvgPenalty
 			bestS = st.S
 			best_s = st.s
 		}
 	}
 
-	fmt.Printf("\n=== Лучшая стратегия: s=%.0f S=%.0f с прибылью %.2f ===\n", best_s, bestS, bestProfit)
+	fmt.Printf("\n=== Лучшая стратегия: s=%.0f S=%.0f с затратами %.2f ===\n", best_s, bestS, bestCost)
 }
